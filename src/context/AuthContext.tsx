@@ -7,7 +7,6 @@ import {
 import { auth, googleProvider, testConnection } from '../firebase';
 import { UserProfile, UserRole } from '../types';
 import { dbService } from '../services/db';
-import { DEFAULT_STUDENTS } from '../data/defaultData';
 
 export const ADMIN_EMAIL = 'henriquebiala7@gmail.com';
 
@@ -26,8 +25,7 @@ interface AuthContextType {
   darkMode: boolean;
   toggleDarkMode: () => void;
   loginWithGoogle: () => Promise<void>;
-  loginAsStudent: (studentUid: string) => void;
-  loginAsAdminDemo: () => void;
+  loginWithStudentCredentials: (email: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUserXpAndStreak: (earnedXp: number, passed: boolean) => Promise<void>;
   loseHeart: () => void;
@@ -73,39 +71,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const email = firebaseUser.email || '';
           const isUserAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-          const profile: UserProfile = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || 'Utilizador AMEF',
-            email: email,
-            role: isUserAdmin ? 'admin' : 'student',
-            status: 'active',
-            avatar: isUserAdmin ? '👨🏽‍🏫' : '🧑🏾‍💻',
-            xp: isUserAdmin ? 2500 : 150,
-            level: isUserAdmin ? 'Mestre Digital' : 'Iniciante Digital',
-            streakDays: 1,
-            lastActiveDate: 'Hoje',
-            badges: isUserAdmin ? ['badge-first-step', 'badge-shortcut-ace', 'badge-explorer'] : ['badge-first-step'],
-            hearts: 5,
-            createdAt: new Date().toISOString(),
-          };
+          // Check if profile exists in database
+          const students = await dbService.getStudents();
+          const existing = students.find(s => s.uid === firebaseUser.uid || s.email.toLowerCase() === email.toLowerCase());
+
+          const profile: UserProfile = existing
+            ? { ...existing, email, role: isUserAdmin ? 'admin' : existing.role }
+            : {
+                uid: firebaseUser.uid,
+                name: firebaseUser.displayName || (isUserAdmin ? 'Administrador Chefe' : 'Aluno AMEF'),
+                email: email,
+                role: isUserAdmin ? 'admin' : 'student',
+                status: 'active',
+                avatar: isUserAdmin ? '👨🏽‍🏫' : '🧑🏾‍💻',
+                xp: isUserAdmin ? 3000 : 0,
+                level: isUserAdmin ? 'Mestre Digital' : 'Iniciante Digital',
+                streakDays: 1,
+                lastActiveDate: 'Hoje',
+                badges: isUserAdmin ? ['badge-first-step', 'badge-shortcut-ace', 'badge-explorer'] : [],
+                hearts: 5,
+                createdAt: new Date().toISOString(),
+              };
 
           // Save to Firestore users
           await dbService.saveStudent(profile);
           setCurrentUser(profile);
+          localStorage.setItem('amef_active_user_uid', profile.uid);
         } else {
-          // If no active Firebase user, check if we had a saved local demo session or default to the primary student
+          // Check if student logged in with local credential
           const savedUid = localStorage.getItem('amef_active_user_uid');
           if (savedUid) {
             const students = await dbService.getStudents();
-            const found = students.find(s => s.uid === savedUid);
+            const found = students.find(s => s.uid === savedUid && s.status === 'active');
             if (found) {
               setCurrentUser(found);
               setLoading(false);
               return;
             }
           }
-          // Default start in demo with Aluno Manuel Domingos so application is immediately playable!
-          setCurrentUser(DEFAULT_STUDENTS[0]);
+          // Not logged in -> must show Login Screen!
+          setCurrentUser(null);
         }
         setLoading(false);
       });
@@ -122,40 +127,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (err: unknown) {
       console.error('Google Sign-In Error:', err);
-      const msg = err instanceof Error ? err.message : 'Falha ao autenticar com a Google.';
-      setError(msg);
+      const errorObj = err as { code?: string; message?: string };
+      if (errorObj?.code === 'auth/unauthorized-domain') {
+        const domain = window.location.hostname;
+        setError(
+          `O domínio "${domain}" ainda não está autorizado na Consola do Firebase. Adicione "${domain}" em: Authentication > Settings > Authorized Domains no projeto theta-grove-x01dl.`
+        );
+      } else if (errorObj?.code === 'auth/popup-closed-by-user') {
+        setError(null);
+      } else {
+        const msg = err instanceof Error ? err.message : 'Falha ao autenticar com a Google.';
+        setError(msg);
+      }
     }
   };
 
-  const loginAsStudent = async (studentUid: string) => {
+  const loginWithStudentCredentials = async (email: string): Promise<boolean> => {
     setError(null);
-    const students = await dbService.getStudents();
-    const student = students.find(s => s.uid === studentUid) || DEFAULT_STUDENTS.find(s => s.uid === studentUid);
-    if (student) {
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const students = await dbService.getStudents();
+      const student = students.find(s => s.email.toLowerCase() === cleanEmail);
+
+      if (!student) {
+        setError('Nenhum aluno registado com este endereço de email. Solicite ao Administrador da AMEF a criação da sua conta.');
+        return false;
+      }
+
+      if (student.status === 'suspended') {
+        setError('Esta conta de aluno encontra-se temporariamente suspensa. Contacte a administração da Academia.');
+        return false;
+      }
+
       setCurrentUser(student);
       localStorage.setItem('amef_active_user_uid', student.uid);
+      return true;
+    } catch (err) {
+      setError('Erro ao validar credenciais. Tente novamente.');
+      return false;
     }
-  };
-
-  const loginAsAdminDemo = () => {
-    setError(null);
-    const adminUser: UserProfile = {
-      uid: 'admin-henrique-amef',
-      name: 'Henrique Biala (Admin)',
-      email: ADMIN_EMAIL,
-      role: 'admin',
-      status: 'active',
-      avatar: '👨🏽‍🏫',
-      xp: 3200,
-      level: 'Mestre Digital',
-      streakDays: 14,
-      lastActiveDate: 'Hoje',
-      badges: ['badge-first-step', 'badge-shortcut-ace', 'badge-streak-fire', 'badge-explorer', 'badge-office-hero', 'badge-cyber-shield'],
-      hearts: 5,
-      createdAt: '2026-10-01T00:00:00Z',
-    };
-    setCurrentUser(adminUser);
-    localStorage.setItem('amef_active_user_uid', adminUser.uid);
   };
 
   const logout = async () => {
@@ -165,8 +175,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Ignore
     }
     localStorage.removeItem('amef_active_user_uid');
-    // Switch to first student default for continuous exploration
-    setCurrentUser(DEFAULT_STUDENTS[0]);
+    setCurrentUser(null);
   };
 
   const updateUserXpAndStreak = async (earnedXp: number, passed: boolean) => {
@@ -212,8 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         darkMode,
         toggleDarkMode,
         loginWithGoogle,
-        loginAsStudent,
-        loginAsAdminDemo,
+        loginWithStudentCredentials,
         logout,
         updateUserXpAndStreak,
         loseHeart,

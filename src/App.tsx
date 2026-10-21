@@ -5,10 +5,11 @@ import { StudentDashboard } from './components/student/StudentDashboard';
 import { Leaderboard } from './components/student/Leaderboard';
 import { BadgesView } from './components/student/BadgesView';
 import { AdminPortal } from './components/admin/AdminPortal';
+import { LoginScreen } from './components/auth/LoginScreen';
 import { GraduationCap, ShieldCheck } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
-  const { currentUser, loading } = useAuth();
+  const { currentUser, loading, error, clearError } = useAuth();
   const [currentTab, setCurrentTab] = useState<'learn' | 'leaderboard' | 'badges' | 'admin'>('learn');
 
   if (loading) {
@@ -25,10 +26,45 @@ const MainLayout: React.FC = () => {
     );
   }
 
+  // If user is not authenticated, show Login Screen immediately!
+  if (!currentUser) {
+    return <LoginScreen />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between transition-colors">
       <div>
         <Navbar currentTab={currentTab} setCurrentTab={setCurrentTab} />
+
+        {/* Global Error / Domain Notice Banner */}
+        {error && (
+          <div className="max-w-4xl mx-auto px-4 mt-4">
+            <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-400 dark:border-amber-700 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+              <div className="space-y-1 text-xs sm:text-sm font-semibold">
+                <p className="font-black flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
+                  ⚠️ Autorização de Domínio Necessária
+                </p>
+                <p>{error}</p>
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <a
+                  href="https://console.firebase.google.com/project/theta-grove-x01dl/authentication/settings"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-xs shadow-sm whitespace-nowrap"
+                >
+                  Abrir Consola Firebase ↗
+                </a>
+                <button
+                  onClick={clearError}
+                  className="px-2.5 py-1.5 rounded-xl bg-amber-200/60 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 text-xs font-bold"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         
         <main>
           {currentTab === 'learn' && <StudentDashboard />}

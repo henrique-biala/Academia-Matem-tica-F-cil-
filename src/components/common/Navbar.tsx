@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { useAuth, ADMIN_EMAIL } from '../../context/AuthContext';
 import { soundService } from '../../services/sound';
-import { DEFAULT_STUDENTS } from '../../data/defaultData';
 
 interface NavbarProps {
   currentTab: 'learn' | 'leaderboard' | 'badges' | 'admin';
@@ -32,9 +31,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
     isAdmin,
     darkMode,
     toggleDarkMode,
-    loginWithGoogle,
-    loginAsStudent,
-    loginAsAdminDemo,
     logout,
     refillHearts,
   } = useAuth();
@@ -202,57 +198,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
                   </div>
                 </div>
 
-                {/* Role Switcher for instant testing */}
-                <div className="mb-2">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-1 mb-1">
-                    Alternar Conta de Teste
-                  </p>
-                  
-                  {/* Admin option */}
-                  <button
-                    onClick={() => { loginAsAdminDemo(); setCurrentTab('admin'); }}
-                    className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-bold text-left hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-700 dark:text-rose-300 transition-colors"
-                  >
-                    <span className="flex items-center gap-2">
-                      <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
-                      Administrador (Henrique Biala)
-                    </span>
-                    {isAdmin && <span className="text-[10px] bg-rose-500 text-white px-1.5 py-0.5 rounded-md">Ativo</span>}
-                  </button>
-
-                  {/* Student Options */}
-                  {DEFAULT_STUDENTS.map(std => (
-                    <button
-                      key={std.uid}
-                      onClick={() => { loginAsStudent(std.uid); setCurrentTab('learn'); }}
-                      className="w-full flex items-center justify-between p-2 rounded-xl text-xs font-semibold text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-slate-700 dark:text-slate-200 transition-colors"
-                    >
-                      <span className="flex items-center gap-2 truncate">
-                        <span>{std.avatar}</span>
-                        <span className="truncate">{std.name}</span>
-                      </span>
-                      {currentUser?.uid === std.uid && (
-                        <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-md">Ativo</span>
-                      )}
-                    </button>
-                  ))}
+                {/* Account details */}
+                <div className="space-y-2 mb-2">
+                  <div className="px-2 py-1 text-xs text-slate-500 dark:text-slate-400">
+                    <p className="font-semibold">Papel: <span className="font-bold text-slate-800 dark:text-slate-200 uppercase">{isAdmin ? 'Administrador' : 'Aluno'}</span></p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Sessão autenticada no AMEF CHALLENGE</p>
+                  </div>
                 </div>
 
                 <div className="border-t border-slate-200 dark:border-slate-800 pt-2 space-y-1">
-                  {/* Google Real Auth */}
-                  <button
-                    onClick={() => loginWithGoogle()}
-                    className="w-full flex items-center gap-2 p-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                    Entrar com Conta Google
-                  </button>
-
                   <button
                     onClick={() => logout()}
-                    className="w-full flex items-center gap-2 p-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                    className="w-full flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <LogOut className="w-4 h-4" />
                     Terminar Sessão
                   </button>
                 </div>

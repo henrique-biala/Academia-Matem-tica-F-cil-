@@ -166,68 +166,8 @@ export const DEFAULT_BADGES: BadgeItem[] = [
   },
 ];
 
-export const DEFAULT_STUDENTS: UserProfile[] = [
-  {
-    uid: 'std-manuel-01',
-    name: 'Manuel Domingos',
-    email: 'manuel.amef@gmail.com',
-    role: 'student',
-    status: 'active',
-    avatar: '👨🏽‍🎓',
-    xp: 680,
-    level: 'Aprendiz Informático',
-    streakDays: 4,
-    lastActiveDate: 'Hoje',
-    badges: ['badge-first-step', 'badge-streak-fire'],
-    hearts: 5,
-    createdAt: '2026-10-10T10:00:00Z',
-  },
-  {
-    uid: 'std-teresa-02',
-    name: 'Teresa Kissonde',
-    email: 'teresa.amef@gmail.com',
-    role: 'student',
-    status: 'active',
-    avatar: '👩🏾‍💻',
-    xp: 1250,
-    level: 'Utilizador Competente',
-    streakDays: 7,
-    lastActiveDate: 'Hoje',
-    badges: ['badge-first-step', 'badge-shortcut-ace', 'badge-streak-fire', 'badge-explorer'],
-    hearts: 5,
-    createdAt: '2026-10-05T08:30:00Z',
-  },
-  {
-    uid: 'std-antonio-03',
-    name: 'António Biala',
-    email: 'antonio.amef@gmail.com',
-    role: 'student',
-    status: 'active',
-    avatar: '🧑🏿‍💻',
-    xp: 340,
-    level: 'Explorador Digital',
-    streakDays: 2,
-    lastActiveDate: 'Ontem',
-    badges: ['badge-first-step'],
-    hearts: 4,
-    createdAt: '2026-10-12T14:15:00Z',
-  },
-  {
-    uid: 'std-helena-04',
-    name: 'Helena Muandumba',
-    email: 'helena.amef@gmail.com',
-    role: 'student',
-    status: 'active',
-    avatar: '👩🏽‍🎓',
-    xp: 890,
-    level: 'Aprendiz Informático',
-    streakDays: 5,
-    lastActiveDate: 'Hoje',
-    badges: ['badge-first-step', 'badge-streak-fire', 'badge-explorer'],
-    hearts: 5,
-    createdAt: '2026-10-08T11:00:00Z',
-  },
-];
+export const DEFAULT_STUDENTS: UserProfile[] = [];
+
 
 export const DEFAULT_ACTIVITIES: ActivityItem[] = [
   // 1. ESCOLHA MÚLTIPLA

@@ -94,24 +94,15 @@ export class DatabaseService {
         }
       }
 
-      // Check students
-      const usersSnap = await getDocs(collection(db, 'users'));
-      if (usersSnap.empty) {
-        for (const std of DEFAULT_STUDENTS) {
-          await setDoc(doc(db, 'users', std.uid), std);
-        }
-      }
+      // Users collection is managed purely by real logins and admin creation
     } catch (err) {
-      console.warn('Firestore initialization notice (falling back gracefully to local/cached data):', err);
+      console.warn('Firestore initialization notice:', err);
       // Ensure local cache has seed data
       if (!localStorage.getItem(LOCAL_STORAGE_KEY_MODULES)) {
         setLocalCache(LOCAL_STORAGE_KEY_MODULES, DEFAULT_MODULES);
       }
       if (!localStorage.getItem(LOCAL_STORAGE_KEY_ACTIVITIES)) {
         setLocalCache(LOCAL_STORAGE_KEY_ACTIVITIES, DEFAULT_ACTIVITIES);
-      }
-      if (!localStorage.getItem(LOCAL_STORAGE_KEY_STUDENTS)) {
-        setLocalCache(LOCAL_STORAGE_KEY_STUDENTS, DEFAULT_STUDENTS);
       }
     }
   }
@@ -257,14 +248,17 @@ export class DatabaseService {
     try {
       const snap = await getDocs(collection(db, 'users'));
       if (!snap.empty) {
-        const list = snap.docs.map(d => d.data() as UserProfile);
+        const list = snap.docs
+          .map(d => d.data() as UserProfile)
+          .filter(u => !u.uid.startsWith('std-manuel') && !u.uid.startsWith('std-teresa') && !u.uid.startsWith('std-antonio') && !u.uid.startsWith('std-helena'));
         setLocalCache(LOCAL_STORAGE_KEY_STUDENTS, list);
         return list;
       }
     } catch (err) {
       handleFirestoreError(err, OperationType.LIST, 'users');
     }
-    return getLocalCache(LOCAL_STORAGE_KEY_STUDENTS, DEFAULT_STUDENTS);
+    const cached = getLocalCache<UserProfile[]>(LOCAL_STORAGE_KEY_STUDENTS, []);
+    return cached.filter(u => !u.uid.startsWith('std-manuel') && !u.uid.startsWith('std-teresa') && !u.uid.startsWith('std-antonio') && !u.uid.startsWith('std-helena'));
   }
 
   public async saveStudent(student: UserProfile): Promise<void> {

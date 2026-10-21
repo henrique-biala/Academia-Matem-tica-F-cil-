@@ -89,10 +89,13 @@ export const StudentManagement: React.FC = () => {
     await loadStudents();
   };
 
-  const handleDeleteStudent = async (uid: string) => {
-    if (confirm('Tem a certeza de que deseja eliminar esta conta de aluno?')) {
+  const handleDeleteStudent = async (student: UserProfile) => {
+    const confirmed = confirm(
+      `Tem a certeza de que deseja eliminar o aluno "${student.name}" (${student.email})?\nEsta ação removerá permanentemente a conta da base de dados Cloud Firestore.`
+    );
+    if (confirmed) {
       soundService.playClick();
-      await dbService.deleteStudent(uid);
+      await dbService.deleteStudent(student.uid);
       await loadStudents();
     }
   };
@@ -231,7 +234,7 @@ export const StudentManagement: React.FC = () => {
                       </button>
 
                       <button
-                        onClick={() => handleDeleteStudent(std.uid)}
+                        onClick={() => handleDeleteStudent(std)}
                         title="Eliminar aluno"
                         className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       >
