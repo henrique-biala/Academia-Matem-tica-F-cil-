@@ -1,0 +1,314 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Lista de administradores autorizados do sistema AMEF CHALLENGE",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Email do administrador"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do administrador"
+        },
+        "role": {
+          "type": "string",
+          "description": "Papel do utilizador"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data de criação em ISO"
+        }
+      },
+      "required": ["email", "role"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Perfil de aluno ou utilizador do AMEF CHALLENGE",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Identificador único do utilizador"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome completo do aluno"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email do aluno"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Avatar ou emoji escolhido"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "student"],
+          "description": "Papel do utilizador"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "suspended"],
+          "description": "Estado da conta do aluno"
+        },
+        "xp": {
+          "type": "number",
+          "description": "Total de pontos de experiência acumulados"
+        },
+        "level": {
+          "type": "string",
+          "description": "Nível atual do aluno"
+        },
+        "streakDays": {
+          "type": "number",
+          "description": "Dias consecutivos de estudo"
+        },
+        "lastActiveDate": {
+          "type": "string",
+          "description": "Data da última atividade realizada"
+        },
+        "badges": {
+          "type": "array",
+          "description": "Lista de medalhas conquistadas"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data de registo"
+        }
+      },
+      "required": ["name", "role", "xp", "level", "status"]
+    },
+    "Module": {
+      "title": "Module",
+      "description": "Módulo temático de informática na ótica do utilizador",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificador do módulo"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título do módulo"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição sucinta do conteúdo"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Ícone representativo"
+        },
+        "order": {
+          "type": "number",
+          "description": "Ordem de exibição"
+        },
+        "color": {
+          "type": "string",
+          "description": "Cor temática do módulo"
+        },
+        "totalActivities": {
+          "type": "number",
+          "description": "Quantidade total de atividades disponíveis"
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Se o módulo está visível para os alunos"
+        }
+      },
+      "required": ["title", "order", "isPublished"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Atividade ou desafio educativo criado no sistema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID da atividade"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "ID do módulo associado"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título da atividade"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Tema específico abordado"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição sucinta e objetivo"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Instruções passo-a-passo"
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["Fácil", "Médio", "Difícil"],
+          "description": "Nível de dificuldade"
+        },
+        "gameType": {
+          "type": "string",
+          "description": "Tipo de jogo interativo"
+        },
+        "xpReward": {
+          "type": "number",
+          "description": "Pontos XP atribuídos ao concluir com sucesso"
+        },
+        "minPassScore": {
+          "type": "number",
+          "description": "Pontuação percentual mínima para aprovação (ex: 70)"
+        },
+        "timeLimitSeconds": {
+          "type": "number",
+          "description": "Limite opcional de tempo em segundos"
+        },
+        "maxAttempts": {
+          "type": "number",
+          "description": "Tentativas permitidas ou 0 para ilimitadas"
+        },
+        "questions": {
+          "type": "array",
+          "description": "Lista de perguntas e exercícios interativos"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "published", "archived"],
+          "description": "Estado de publicação da atividade"
+        },
+        "order": {
+          "type": "number",
+          "description": "Posição na trilha do módulo"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Data de atualização"
+        }
+      },
+      "required": ["moduleId", "title", "difficulty", "gameType", "xpReward", "status", "questions"]
+    },
+    "Attempt": {
+      "title": "Attempt",
+      "description": "Registo de tentativa e resolução de atividade por um aluno",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do registo da tentativa"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID do aluno que realizou a atividade"
+        },
+        "studentName": {
+          "type": "string",
+          "description": "Nome do aluno"
+        },
+        "activityId": {
+          "type": "string",
+          "description": "ID da atividade realizada"
+        },
+        "activityTitle": {
+          "type": "string",
+          "description": "Título da atividade"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "ID do módulo"
+        },
+        "scorePercent": {
+          "type": "number",
+          "description": "Percentagem de acerto obtida (0 a 100)"
+        },
+        "xpEarned": {
+          "type": "number",
+          "description": "Pontos XP ganhos nesta tentativa"
+        },
+        "passed": {
+          "type": "boolean",
+          "description": "Se atingiu a nota mínima para aprovação"
+        },
+        "timeSpentSeconds": {
+          "type": "number",
+          "description": "Tempo decorrido durante a tentativa"
+        },
+        "answersSummary": {
+          "type": "array",
+          "description": "Resumo das respostas dadas"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data e hora da tentativa"
+        }
+      },
+      "required": ["userId", "activityId", "scorePercent", "passed", "xpEarned"]
+    },
+    "Badge": {
+      "title": "Badge",
+      "description": "Medalha de conquista configurável no sistema",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID da medalha"
+        },
+        "title": {
+          "type": "string",
+          "description": "Nome da medalha"
+        },
+        "description": {
+          "type": "string",
+          "description": "Requisito para desbloqueio"
+        },
+        "icon": {
+          "type": "string",
+          "description": "Ícone visual"
+        },
+        "category": {
+          "type": "string",
+          "description": "Categoria da medalha"
+        },
+        "xpBonus": {
+          "type": "number",
+          "description": "XP bónus concedido"
+        }
+      },
+      "required": ["title", "description", "icon"]
+    }
+  },
+  "firestore": {
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Coleção de administradores autorizados do sistema"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Coleção de perfis de utilizadores e alunos"
+    },
+    "/modules/{moduleId}": {
+      "schema": "Module",
+      "description": "Módulos de formação em informática"
+    },
+    "/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "Atividades e desafios pedagógicos"
+    },
+    "/attempts/{attemptId}": {
+      "schema": "Attempt",
+      "description": "Histórico e relatórios de tentativas dos alunos"
+    },
+    "/badges/{badgeId}": {
+      "schema": "Badge",
+      "description": "Catálogo de medalhas e conquistas da gamificação"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "AMEF CHALLENGE",
+  "description": "Aplicação educativa da Academia Matemática é Fácil para ensinar Informática na Ótica do Utilizador com jogos, desafios e atividades interativas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
